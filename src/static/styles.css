@@ -664,3 +664,76 @@ footer {
 #logout-button:hover {
   background-color: rgba(255, 255, 255, 0.3);
 }
+
+/* Share buttons */
+.share-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.share-label {
+  font-size: 0.8rem;
+  color: #666;
+  margin-right: 2px;
+}
+
+.share-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s, opacity 0.2s;
+  color: white;
+  padding: 0;
+  line-height: 1;
+}
+
+.share-btn:hover {
+  transform: scale(1.15);
+  opacity: 0.9;
+}
+
+.share-copy {
+  background-color: #6c757d;
+}
+
+.share-twitter {
+  background-color: #000000;
+  font-family: serif;
+  font-size: 1rem;
+}
+
+.share-facebook {
+  background-color: #1877f2;
+  font-size: 1.05rem;
+}
+
+.share-whatsapp {
+  background-color: #25d366;
+}
+
+.share-copy-feedback {
+  font-size: 0.75rem;
+  color: #2e7d32;
+  min-height: 1em;
+}
+.activity-highlighted {
+  outline: 3px solid var(--primary-color, #1a237e);
+  outline-offset: 3px;
+  animation: highlight-fade 3s ease forwards;
+}
+
+@keyframes highlight-fade {
+  0%   { outline-color: var(--primary-color, #1a237e); }
+  100% { outline-color: transparent; }
+}

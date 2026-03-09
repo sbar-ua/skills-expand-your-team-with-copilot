@@ -476,6 +476,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderActivityCard(name, details) {
     const activityCard = document.createElement("div");
     activityCard.className = "activity-card";
+    activityCard.dataset.activity = name;
 
     // Calculate spots and capacity
     const totalSpots = details.max_participants;
@@ -569,6 +570,22 @@ document.addEventListener("DOMContentLoaded", () => {
         `
         }
       </div>
+      <div class="share-buttons" aria-label="Share ${name}">
+        <span class="share-label">Share:</span>
+        <button class="share-btn share-copy tooltip" data-activity="${name}" aria-label="Copy link to ${name}">
+          🔗<span class="tooltip-text">Copy link</span>
+        </button>
+        <button class="share-btn share-twitter tooltip" data-activity="${name}" aria-label="Share ${name} on X (Twitter)">
+          𝕏<span class="tooltip-text">Share on X (Twitter)</span>
+        </button>
+        <button class="share-btn share-facebook tooltip" data-activity="${name}" aria-label="Share ${name} on Facebook">
+          f<span class="tooltip-text">Share on Facebook</span>
+        </button>
+        <button class="share-btn share-whatsapp tooltip" data-activity="${name}" aria-label="Share ${name} on WhatsApp">
+          💬<span class="tooltip-text">Share on WhatsApp</span>
+        </button>
+      </div>
+      <div class="share-copy-feedback" aria-live="polite" aria-atomic="true"></div>
     `;
 
     // Add click handlers for delete buttons
@@ -587,7 +604,61 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
+    // Add click handlers for share buttons
+    const shareButtons = activityCard.querySelectorAll(".share-btn");
+    shareButtons.forEach((button) => {
+      button.addEventListener("click", handleShare);
+    });
+
     activitiesList.appendChild(activityCard);
+  }
+
+  // Handle sharing an activity to various platforms
+  function handleShare(event) {
+    const button = event.currentTarget;
+    const activityName = button.dataset.activity;
+    const activityUrl = `${window.location.origin}${window.location.pathname}?activity=${encodeURIComponent(activityName)}`;
+    const shareText = `Check out "${activityName}" at Mergington High School!`;
+
+    if (button.classList.contains("share-copy")) {
+      const card = button.closest(".activity-card");
+      const feedbackEl = card ? card.querySelector(".share-copy-feedback") : null;
+
+      const announceCopied = () => {
+        button.textContent = "✓";
+        if (feedbackEl) feedbackEl.textContent = "Link copied!";
+        setTimeout(() => {
+          button.textContent = "🔗";
+          if (feedbackEl) feedbackEl.textContent = "";
+        }, 2000);
+      };
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(activityUrl).then(announceCopied).catch(() => {
+          prompt("Copy this link to share the activity:", activityUrl);
+        });
+      } else {
+        prompt("Copy this link to share the activity:", activityUrl);
+      }
+    } else if (button.classList.contains("share-twitter")) {
+      window.open(
+        `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(activityUrl)}`,
+        "_blank",
+        "noopener,noreferrer"
+      );
+    } else if (button.classList.contains("share-facebook")) {
+      window.open(
+        `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(activityUrl)}`,
+        "_blank",
+        "noopener,noreferrer"
+      );
+    } else if (button.classList.contains("share-whatsapp")) {
+      window.open(
+        `https://wa.me/?text=${encodeURIComponent(shareText + " " + activityUrl)}`,
+        "_blank",
+        "noopener,noreferrer"
+      );
+    }
   }
 
   // Event listeners for search and filter
@@ -864,5 +935,16 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initialize app
   checkAuthentication();
   initializeFilters();
-  fetchActivities();
+  fetchActivities().then(() => {
+    // After activities load, scroll to a specific activity if linked via ?activity= param
+    const params = new URLSearchParams(window.location.search);
+    const linkedActivity = params.get("activity");
+    if (linkedActivity) {
+      const card = document.querySelector(`.activity-card[data-activity="${CSS.escape(linkedActivity)}"]`);
+      if (card) {
+        card.scrollIntoView({ behavior: "smooth", block: "center" });
+        card.classList.add("activity-highlighted");
+      }
+    }
+  });
 });
